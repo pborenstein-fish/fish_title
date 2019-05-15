@@ -78,13 +78,6 @@ function my_fish_title
   # the default title string is the abbreviated PWD
   set -l title_string (prompt_pwd)
 
-  # HOME is a special case
-  if test $HOME = $PWD
-    tab_deep_sky_blue
-    do_title $title_string
-    return
-  end
-
   # Are we in one of the special directories?
   set ix 1
   for d in $directory
