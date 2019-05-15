@@ -43,15 +43,21 @@ set color       # array of colors
 
 # set up the directory, title, color arrays
 while read --delimiter=, _directory _title _color
-   set _directory (string trim $_directory)
-   set _title (string trim $_title)
-   set _color (string trim $_color)
-   if test -z $_directory$_title$_color
+  set _directory (string trim $_directory)
+  set _title (string trim $_title)
+  set _color (string trim $_color)
+  if test -z $_directory$_title$_color
     continue
   end
-   set directory $directory $_directory
-   set title $title $_title
-   set color $color $_color
+
+  if [ (string sub -l1 $_directory) = '$' ]
+    set _directory (string sub -s 2 $_directory)
+    set _directory "^$$_directory\$"
+  end
+
+  set directory $directory $_directory
+  set title $title $_title
+  set color $color $_color
 end < $FISH_TITLES_CSV
 
 
@@ -67,7 +73,7 @@ set fish_prompt_pwd_dir_length 3
 # if 'yes', does not change the color of the tab
 # if anything else, change color to tab_default
 
-set tab_default_override "no"
+set sticky_tab_color "no"
 
 #   Now we write a title function that
 #   * sets the window title
@@ -81,7 +87,7 @@ function my_fish_title
   # Are we in one of the special directories?
   set ix 1
   for d in $directory
-    if set m (string match -r $d $PWD)
+    if set m (string match -r "$d" "$PWD")
       break
     end
     set ix (math $ix + 1)
@@ -99,11 +105,12 @@ function my_fish_title
     return
   end
 
-  do_title $title_string
-  
-  if test $tab_default_override != "yes"
+  # reset the color every time unless it's sticky
+  if test $sticky_tab_color != "yes"
     tab_default
   end
+
+  do_title "$title_string"  
 end
 
 function do_title --argument-names title_string
@@ -119,14 +126,11 @@ function do_preexec --on-event fish_preexec
   # $argv is the command line
   set xyzzy $_ $argv
   if string match -qr "jekyll.*serve" $xyzzy
+    tab_golden_rod
     do_title "jekyll"
+  else
     tab_golden_rod
-  else if string match -qr "run.py" $xyzzy
-    do_title "edit-server"
-    tab_golden_rod
-  else if string match -qr "python -m SimpleHTTPServer" $xyzzy
-    do_title "SIMPLE"
-    tab_golden_rod
+    do_title $argv
   end
 end
 
