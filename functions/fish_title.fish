@@ -32,42 +32,41 @@ tab_color
 #
 #   See: https://fishshell.com/docs/current/index.html#title
 
-set -l FISH_TITLES_CSV  "$HOME/.config/fish_titles.csv"
+
+function fish_title
+  #   we disable fish's normal title handling
+  #   by ensuring it returns nothing
+end
+
+set fish_prompt_pwd_dir_length 3  # number of chars per directory
+set tab_default_override "no"     # if no: reset color to tab_default
+                                  # if yes: leave it alone
 
 set -l smallhost (string replace -r '\..+' '' $hostname)
+
+
+set -l FISH_TITLES_CSV  "$HOME/.config/fish_titles.csv"
+
 set FISH_TITLES_CSV "$HOME/.config/fish/conf.d/titles."$smallhost
 
-set directory   # array of directories
-set title       # array of titles
-set color       # array of colors
+set -l directory   # array of directories
+set -l title       # array of titles
+set -l color       # array of colors
 
 # set up the directory, title, color arrays
 while read --delimiter=, _directory _title _color
-   set _directory (string trim $_directory)
-   set _title (string trim $_title)
-   set _color (string trim $_color)
-   if test -z $_directory$_title$_color
-    continue
-  end
-   set directory $directory $_directory
-   set title $title $_title
-   set color $color $_color
+  set _directory (string trim $_directory)
+  set _title     (string trim $_title)
+  set _color     (string trim $_color)
+
+  [ -z $_directory$_title$_color ] && continue
+
+  set directory $directory $_directory
+  set title     $title     $_title
+  set color     $color     $_color
 end < $FISH_TITLES_CSV
 
 
-#   first we disable fish's normal title handling
-#   by ensuring it returns nothing
-
-function fish_title
-end
-
-# for prompt_pwd: number of characters per directory
-set fish_prompt_pwd_dir_length 3
-
-# if 'yes', does not change the color of the tab
-# if anything else, change color to tab_default
-
-set tab_default_override "no"
 
 #   Now we write a title function that
 #   * sets the window title
