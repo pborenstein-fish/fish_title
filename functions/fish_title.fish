@@ -110,18 +110,18 @@ function my_fish_title
     tab_default
   end
 
-  do_title "$title_string"  
+  do_title "$title_string"
 end
 
 function do_title --argument-names title_string
   echo -ne "\e]0;$title_string\a"
 end
 
-function do_fish_prompt --on-event fish_prompt 
+function do_fish_prompt --on-event fish_prompt
   my_fish_title
 end
 
-function do_preexec --on-event fish_preexec 
+function do_preexec --on-event fish_preexec
   # $_ is the command being run, usually fish
   # $argv is the command line
   set xyzzy $_ $argv
