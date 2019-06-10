@@ -79,10 +79,18 @@ set sticky_tab_color "no"
 #   * sets the window title
 #   * sets the tab color
 
-function my_fish_title
+set TITLE_FILE './title.file'
 
-  # the default title string is the abbreviated PWD
+function my_fish_title
+    # the default title string is the abbreviated PWD
   set -l title_string (prompt_pwd)
+
+  if test -e $TITLE_FILE
+      # read the file: name, color
+      tab_lime
+      do_title $title_string
+      return
+  end
 
   # Are we in one of the special directories?
   set ix 1
