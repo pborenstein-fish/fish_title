@@ -33,6 +33,7 @@ tab_color
 #   See: https://fishshell.com/docs/current/index.html#title
 
 set -l FISH_TITLES_CSV  "$HOME/.config/fish_titles.csv"
+set    FISH_DIR_TITLE   "./.fish_dir_title"
 
 set -l smallhost (string replace -r '\..+' '' $hostname)
 set FISH_TITLES_CSV "$HOME/.config/fish/conf.d/titles."$smallhost
@@ -79,10 +80,24 @@ set sticky_tab_color "no"
 #   * sets the window title
 #   * sets the tab color
 
-function my_fish_title
 
-  # the default title string is the abbreviated PWD
+function my_fish_title
+    # the default title string is the abbreviated PWD
   set -l title_string (prompt_pwd)
+
+  if test -e $FISH_DIR_TITLE
+    read --delimiter=, _title _color < $FISH_DIR_TITLE
+    set _title (string trim $_title)
+    set _color (string trim $_color)
+    
+    if ! type -q "$_color"
+      set _color "tab_default"
+    end
+    
+    eval "$_color"
+    do_title $_title || $title_string
+    return
+  end
 
   # Are we in one of the special directories?
   set ix 1
